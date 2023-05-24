@@ -9,7 +9,6 @@ def increase_contrast(image, alpha):
     adjusted = cv2.convertScaleAbs(image, alpha=alpha, beta=2)
     return adjusted
 
-
 def increase_brightness(image, beta):
     adjusted = cv2.convertScaleAbs(image, alpha=1.0, beta=beta)
     return adjusted
@@ -37,25 +36,28 @@ def extract_qr_code_area(image):
 
 def main():
     st.set_option('deprecation.showfileUploaderEncoding', False)
+
     img_file = st.file_uploader(label='Upload a file', type=['png', 'jpg'])
+
     realtime_update = st.checkbox(label="Update in Real Time", value=True)
 
     if img_file:
-        img = Image.open(img_file)
+        
+        
+        #img = Image.open(img_file)
+        img = st.camera_input("Take a picture")
         if not realtime_update:
             st.write("Double click to save crop")
         cropped_img = st_cropper(img, realtime_update=realtime_update, box_color="#10D604", aspect_ratio=(1, 1))
         
         _ = cropped_img.thumbnail((300,300))
         
-
         cropped_img = process_image(cropped_img)
         st.image(cropped_img)
         processed_img_pil = Image.fromarray(cropped_img)
         dmtx_object = decode(processed_img_pil)[0]
         serial_number = dmtx_object[0]
-        st.write(serial_number)
-
+        st.write(str(serial_number).split("'")[1])
 
 if __name__ == "__main__":
     main()

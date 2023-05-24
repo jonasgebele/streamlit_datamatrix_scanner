@@ -3,3 +3,4 @@ streamlit-cropper
 numpy
 pylibdmtx
 opencv-python
+libdmtx

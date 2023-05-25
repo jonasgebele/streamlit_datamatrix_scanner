@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8501
 
 # Start the Streamlit server
-CMD ["streamlit", "run", "your_script.py"]
+CMD ["streamlit", "run", "Main.py"]

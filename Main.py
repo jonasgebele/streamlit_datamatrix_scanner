@@ -2,7 +2,6 @@ import streamlit as st
 from streamlit_cropper import st_cropper
 from PIL import Image
 from pylibdmtx.pylibdmtx import decode
-from streamlit_back_camera_input import back_camera_input
 import cv2
 import numpy as np
 
@@ -38,37 +37,27 @@ def extract_qr_code_area(image):
 def main():
     st.set_option('deprecation.showfileUploaderEncoding', False)
 
-    image_source = st.radio("Bildaufnahme", ('Bildaufnahme über Kamera-App (Empfohlen)', 'Manuell über die Website Bild aufnehmen'))
-    img = None
+    img_file = st.file_uploader(label='Upload a file', type=['png', 'jpg'])
 
-    if image_source=='Bildaufnahme über Kamera-App (Empfohlen)':
-        img_file = st.file_uploader(label='Browse Files → Kamera (über Kamera-App) → Bild aufnehmen', type=['png', 'jpg'])
-        if img_file:
-            img = Image.open(img_file)
-    else:
-        st.caption("Rückkamera am Smartphone oder Webcam am Laptop")
-        img = back_camera_input()
-        if img:
-            img = Image.open(img)
-        st.info('Auf das Video klicken um Bild aufzunehmen')
+    realtime_update = st.checkbox(label="Update in Real Time", value=True)
 
-    st.markdown("""---""")
-
-    if img:
-        cropped_img = st_cropper(img, realtime_update=True, box_color="#10D604", aspect_ratio=(1, 1))
-        st.write("QR-Code Fokus")
-        _ = cropped_img.thumbnail((150,150))
+    if img_file:
+        
+        
+        #img = Image.open(img_file)
+        img = st.camera_input("Take a picture")
+        if not realtime_update:
+            st.write("Double click to save crop")
+        cropped_img = st_cropper(img, realtime_update=realtime_update, box_color="#10D604", aspect_ratio=(1, 1))
+        
+        _ = cropped_img.thumbnail((300,300))
+        
         cropped_img = process_image(cropped_img)
         st.image(cropped_img)
-
         processed_img_pil = Image.fromarray(cropped_img)
-        dmtx_object = decode(processed_img_pil)
-        print(dmtx_object)
-        if dmtx_object:
-            new_dmtx_object = dmtx_object[0]
-            if new_dmtx_object:
-                serial_number = dmtx_object[0]
-                st.write(str(serial_number).split("'")[1])
+        dmtx_object = decode(processed_img_pil)[0]
+        serial_number = dmtx_object[0]
+        st.write(str(serial_number).split("'")[1])
 
 if __name__ == "__main__":
     main()
